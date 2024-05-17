@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        textarea, input {
+            border: 1px solid black;
+            margin: 1px;
+        }
+
+        button {
+            width: 70px;
+            height: 30px;
+        }
+
+        .center-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin: auto;
+            /*background-color: aqua;*/
+        }
+
+        .display-show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-right: 8px;
+            margin-left: 8px;
+            /*display: none;*/
+        }
+
+        .center-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .center-text {
+            display: block;
+            text-align: center;
+        }
+
+        /* Add this rule */
+        #url, #referencData, #text-input {
+            font-size: 18px;
+        }
+
+        #addUrlButton {
+            margin-left: 10px;
+            width: 70px;
+            height: 30px;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<div class="center-screen">
+    <div style="display: flex; align-items: flex-start;">
+        <div class="display-show">
+            <label for="referencData">参考数据：</label>
+            <textarea id="referencData" style="width: 400px; height: 649px; overflow: auto; " readonly></textarea>
+        </div>
+        <div>
+            <div class="center-content">
+                <label for="url">请求地址：</label>
+                <input id="url" style="width: 900px; height: 30px;" value="http://localhost:80"></input>
+            </div>
+            <div>
+                <textarea id="display-area" style="width: 900px; height: 500px; overflow: auto;" readonly></textarea>
+            </div>
+            <div>
+                <textarea id="text-input"
+                          style="width: 900px; height: 100px; overflow: auto;">悉尼大学申请费多少钱</textarea>
+            </div>
+            <div>
+                <button onclick="clearInput()">Clear</button>
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+        <div class="display-show">
+            <div>
+                <label for="addUrl" class="center-text">添加网页知识：</label>
+                <div style="display: flex; align-items: center;">
+                    <input id="addUrl" style="width: 300px; height: 30px;" placeholder="官网url"
+                           value="https://study.unimelb.edu.au/?in_c=home-path"
+                    >
+                    <button onclick="addUrl()" id="addUrlButton">解析页面</button>
+                </div>
+                <textarea id="urlData" style="width: 381px; height: 399px; overflow: auto; "></textarea>
+                <button onclick="addUrlData()" id="addUrlButton1">添加</button>
+            </div>
+            <div style="margin-top: 14px">
+                <label for="school" class="center-text">添加基础知识：</label>
+                <div>
+                    <input id="country" style="width: 300px; height: 30px;" placeholder="国家">
+                    <input id="school" style="width: 300px; height: 30px;" placeholder="学校-专业">
+                    <input id="questions" style="width: 300px; height: 30px;" placeholder="提问">
+                    <input id="answer" style="width: 300px; height: 30px;" placeholder="回答">
+                    <button onclick="addBase()">添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    // 清空输入框
+    function clearInput() {
+        document.getElementById("text-input").value = "";
+    }
+
+    var csrfToken = "{{ csrf_token }}";
+    // 回车发送消息
+    document.getElementById("text-input").addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevents the default action of the Enter key
+            sendMessage();
+        }
+    });
+    var url = document.getElementById("url").value.trim();
+
+    // 发送消息
+    async function sendMessage() {
+        var message = document.getElementById("text-input").value;
+        // Check if the input is empty
+        if (!message.trim()) {
+            return;  // If the input is empty, stop the function execution
+        }
+
+        // Display it in the display area
+        document.getElementById("display-area").value += "user: " + message + "\n";
+
+        try {
+            // Send the message to the specified endpoint
+            let response = await fetch('/knowledge/ask?text=' + message, {
+                method: 'GET',
+                headers: {
+                    'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+                    'Accept': '*/*',
+                    'Host': '192.168.16.141:80',
+                    'Connection': 'keep-alive'
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            let data = await response.json();
+
+            // 从 data 对象中获取 referencData 和 answer
+            var referencData = data.reference_data;
+            var answer = data.ai_message;
+            console.log('Success:', data);
+            // Display the response data in the display area
+            document.getElementById("display-area").value += "assistant: " + answer + "\n" + "\n" + "\n";
+            document.getElementById("referencData").value = referencData;
+        } catch (error) {
+            console.error('Error:', error);
+            alert('服务异常请联系小王 ' + error.message);
+        }
+
+        clearInput();
+    }
+
+    // 添加网页知识
+    function addUrl() {
+        var addUrl = $('#addUrl').val().trim();
+        if (!addUrl) {
+            return;
+        }
+        $.ajax({
+            url: '/knowledge/ParsingUrl',
+            type: 'GET',
+            data: {url: addUrl},
+            headers: {
+                'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+                'Accept': '*/*',
+                'Host': '192.168.16.141:80',
+                'Connection': 'keep-alive'
+            },
+            success: function (data) {
+                console.log('Success:', data);
+                $('#urlData').val(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error:', errorThrown);
+                alert('服务异常请联系小王 ' + errorThrown);
+            }
+        });
+    }
+
+
+    // 添加网页知识
+    function addUrlData() {
+        console.log(csrfToken);
+        var urlData = $("#urlData").val().trim();
+        if (!urlData) {
+            return;
+        }
+
+        let data = {
+            questions: urlData,
+            country: "country",
+            school: 'school',
+            answer: 'answer'
+        }
+
+
+        $.ajax({
+            url: '/knowledge/addUrlData/',
+            type: 'POST',
+            headers: {
+                'Accept': '*/*',
+                'Content-Type': 'application/json',
+                // 添加 CSRF token 到请求头部
+                'X-CSRFToken': csrfToken
+            },
+            data: JSON.stringify(data),
+            success: function (response) {
+                console.log('Success:', response);
+                $("#urlData").val("");
+                alert('添加成功');
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error:', errorThrown);
+                alert('服务异常请联系小王 ' + errorThrown);
+            }
+        });
+    }
+
+    // 添加基础知识
+    function addBase() {
+        var country = document.getElementById("country").value.trim();
+        var school = document.getElementById("school").value.trim();
+        var questions = document.getElementById("questions").value.trim();
+        var answer = document.getElementById("answer").value.trim();
+        if (!school || !questions || !answer) {
+            return;
+        }
+        var data = {
+            country: country,
+            school: school,
+            questions: questions,
+            answer: answer
+        };
+
+        $.ajax({
+            url: '/knowledge/addBaseData/',
+            type: 'POST',
+            headers: {
+                'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+                'Accept': '*/*',
+                'Host': '192.168.16.141:80',
+                'Connection': 'keep-alive',
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(data),
+            success: function (response) {
+                console.log('Success:', response);
+                alert('添加成功');
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error:', errorThrown);
+                alert('服务异常请联系小王 ' + errorThrown);
+            }
+        });
+    }
+
+
+</script>
+</body>
+</html>

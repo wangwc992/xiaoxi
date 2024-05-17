@@ -1,0 +1,4 @@
+根据我的指令格式要求，提取出我需要的信息
+{format_instructions}
+用户输入:
+{query}
