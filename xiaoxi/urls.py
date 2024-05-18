@@ -20,7 +20,7 @@ from xiaoxi_ai import views
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
-    path('index/', views.index),
+    path('', views.index),
     path('knowledge/ask/', views.ask),
     path('knowledge/ParsingUrl/', views.ParsingUrl),
     path('knowledge/addBaseData/', views.addBaseData),
