@@ -1,10 +1,10 @@
+from django.conf import settings
 from elasticsearch7.client import Elasticsearch
 
 
 class EsClient:
     es = Elasticsearch(
-        hosts=['http://192.168.0.188:2200'],  # 服务地址与端口
-        # hosts=['http://127.0.0.1:9200'],  # 服务地址与端口
+        hosts=[settings.ES_HOST],  # 服务地址与端口
         # http_auth=("elastic", "FKaB1Jpz0Rlw0l6G"),  # 用户名，密码
     )
 

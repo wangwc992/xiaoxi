@@ -3,13 +3,21 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+
+from django.conf import settings
 from xiaoxi_ai.MVC.controller.knowledge.knowledge import knowledgeService
 from xiaoxi_ai.MVC.model.knowledge.knowledge_model import BaseKnowledgeModel
 
 
 # Create your views here.
 def index(request):
-    print('index')
+    my_setting_value = settings.MY_SETTING
+    # 使用 my_setting_value 执行逻辑
+    print(f"The setting value is: {my_setting_value}", settings.MYSQL_HOST,
+          settings.MYSQL_USER,
+          settings.MYSQL_PASSWD,
+          settings.MYSQL_DB)
+    print(settings.SECRET_KEY)
     return render(request, 'aiClient.html')
 
 

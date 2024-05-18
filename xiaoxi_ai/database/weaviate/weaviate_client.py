@@ -1,12 +1,19 @@
 import weaviate
+from django.conf import settings
+
 import xiaoxi_ai.ai_client.client.langchain_client as langchain_client
 
 from weaviate.classes.config import Property, DataType, Configure
 from weaviate.classes.query import HybridFusion, Filter, MetadataQuery, Move, Rerank
 
 langchain_client = langchain_client.LangChain()
+
+
 class WeaviateClient:
-    client = weaviate.connect_to_local()
+    client = weaviate.connect_to_local(
+        host=settings.WEAVIATE_HOST,
+        headers={"X-Huggingface-Api-Key": "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"}
+    )
 
     def __init__(self, collections_name):
         self.collections_name = collections_name

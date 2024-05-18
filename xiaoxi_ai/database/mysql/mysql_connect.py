@@ -1,17 +1,14 @@
 import MySQLdb
+from django.conf import settings
 
 
 class MySQLConnect:
     def __init__(self):
         self.conn = MySQLdb.connect(
-            host="192.168.0.137",
-            user="root",
-            passwd="mirandA123!@#",
-            db="test_xxlxdb",
-            # host="127.0.0.1",
-            # user="root",
-            # passwd="root",
-            # db="ai_knowledge_base"
+            host=settings.MYSQL_HOST,
+            user=settings.MYSQL_USER,
+            passwd=settings.MYSQL_PASSWD,
+            db=settings.MYSQL_DB,
         )
 
         # 创建游标对象

@@ -21,8 +21,8 @@ class KnowledgeWeaviate(WeaviateClient):
     langChain = langchain_client.LangChain()
 
     def __init__(self):
-        super().__init__("AiKnowledge4")
-        self.collections_name = "AiKnowledge4"
+        super().__init__("AiKnowledge")
+        self.collections_name = "AiKnowledge"
 
     def create_collection(self):
         self.client.collections.create(
@@ -83,7 +83,7 @@ class KnowledgeWeaviate(WeaviateClient):
         return uuid_list
 
     def search_hybrid(self, query, limit):
-        print('w',time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        print('w', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         response = self.collections.query.hybrid(
             query=query,
             fusion_type=HybridFusion.RELATIVE_SCORE,
@@ -93,7 +93,7 @@ class KnowledgeWeaviate(WeaviateClient):
             return_metadata=MetadataQuery(score=True, explain_score=True),
             limit=limit,
         )
-        print('w',time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        print('w', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         response_list = []
         for o in response.objects:
             knowledge_weaviate_model = KnowledgeWeaviateModel(uuid=str(o.uuid), instruction=o.properties['instruction'],
@@ -116,8 +116,10 @@ class KnowledgeWeaviate(WeaviateClient):
         # 重排序
         # response_list = self.langChain.reranker_model(query, response_list)
         return response_list
+
     def delete_data_id(self, uuid):
         self.collections.data.delete_by_id(uuid)
+
 
 if __name__ == '__main__':
     knowledgeWeaviate = KnowledgeWeaviate()

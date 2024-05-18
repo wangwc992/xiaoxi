@@ -22,13 +22,15 @@
 
 # 为了安装项目的依赖项，我们需要创建一个虚拟环境并激活它。然后，我们可以使用以下命令安装项目的依赖项：
 
-    pip install openai: 安装openAi的包
-    pip install --upgrade langchain: 安装langchain的包
-    pip install --upgrade langchain-openai: 安装langchain-openai的包
-    pip install python-dotenv langchain-openai: 安装python-dotenv的包,degAGI
-    pip install transformers: 安装transformers的包,用于调用transformers模型
-    pip install sentence_transformers: 安装Hugging Face Hub的包,用于调用Hugging Face Hub模型Embedding Models
-    pip install sentence_transformers # 安装sentence_transformers的包,用于将输入数据转换为AI模型可以处理的格式
-    pip install -U weaviate-client: 安装weaviate-client的包,用于调用LLM（语言模型）函数,操作weaviate向量数据库
-    pip install elasticsearch7: 安装elasticsearch的包,用于操作elasticsearch数据库
-    pip install mysqlclient: 安装mysqlclient的包,用于操作mysql数据库
+    pip3.12 install openai: 安装openAi的包
+    pip3.12 install --upgrade langchain: 安装langchain的包
+    pip3.12 install --upgrade langchain-openai: 安装langchain-openai的包
+    pip3.12 install --upgrade langchain_community: 安装langchain_community的包
+    pip3.12 install python-dotenv langchain-openai: 安装python-dotenv的包,degAGI
+    pip3.12 install transformers: 安装transformers的包,用于调用transformers模型
+    pip3.12 install sentence_transformers # 安装sentence_transformers的包,用于将输入数据转换为AI模型可以处理的格式
+    pip3.12 install -U weaviate-client: 安装weaviate-client的包,用于调用LLM（语言模型）函数,操作weaviate向量数据库
+    pip3.12 install elasticsearch7: 安装elasticsearch的包,用于操作elasticsearch数据库
+    pip3.12 install mysqlclient: 安装mysqlclient的包,用于操作mysql数据库
+    pip3.12 install nltk
+    pip3.12 install fastapi
