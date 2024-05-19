@@ -1,6 +1,7 @@
 from langchain_openai import ChatOpenAI
 from dotenv import find_dotenv
 from langchain_community.embeddings import HuggingFaceEmbeddings
+from langfuse.decorators import langfuse_context
 from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
@@ -20,6 +21,13 @@ encode_kwargs = {'normalize_embeddings': False}
 
 class LangChain:
     llm = ChatOpenAI(model=OPENAI_MODEL_NAME)  # 默认是gpt-3.5-turbo
+
+    def invoke_with_handler(self,input):
+        langfuse_handler = langfuse_context.get_current_langchain_handler()
+        ai_message = self.llm.invoke(input=input, config={"callbacks": [langfuse_handler]})
+        return ai_message
+
+
     embedding = HuggingFaceEmbeddings(
         model_name=LLM_MODEL_PATH + "BAAI/bge-large-zh-v1.5",
         model_kwargs=model_kwargs,

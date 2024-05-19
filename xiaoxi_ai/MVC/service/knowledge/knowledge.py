@@ -1,7 +1,8 @@
 import json
 import time
-
+import os
 from langchain_core.prompts import PromptTemplate
+from langfuse.decorators import observe, langfuse_context
 
 import xiaoxi_ai.database.mysql.ai_chat_log_mapper as ai_chat_log_mapper
 import xiaoxi_ai.common.text_utils.rank as rank
@@ -19,7 +20,12 @@ langchain_client = langchain_client.LangChain()
 
 class KnowledgeService:
 
+    @observe()
     def completion(self, query):
+        langfuse_context.update_current_trace(
+            name="LangChainDemo",
+            user_id="1001",
+        )
         # 获取向量数据类表
         knowledge_weaviate_list = knowledgeWeaviate.search_hybrid(query, 20)
         print(knowledge_weaviate_list)
@@ -31,11 +37,12 @@ class KnowledgeService:
         n = min(10, len(rrf_list))
         reference_data = "\n\n".join([f"reference data{n + 1}: {rrf_list[n]['text']}"
                                       for n in range(n) if 'text' in rrf_list[n]])
-        template = PromptTemplate.from_file(
-            template_file="D:\\DevelopmentTool\\Python\\Project\\xiaoxi\\xiaoxi_ai\\prompt\\knowledge_prompt.txt")
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(base_dir, '../../../prompt/knowledge_prompt.txt')
+        template = PromptTemplate.from_file(file_path)
         prompt = template.format(input=query, reference_data=reference_data)
         print('l', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-        ai_message = langchain_client.llm.invoke(prompt)
+        ai_message = langchain_client.invoke_with_handler(prompt)
         print('l', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         response_metadata = ai_message.response_metadata
         token_usage = response_metadata['token_usage']

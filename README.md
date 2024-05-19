@@ -32,5 +32,5 @@
     pip3.12 install -U weaviate-client: 安装weaviate-client的包,用于调用LLM（语言模型）函数,操作weaviate向量数据库
     pip3.12 install elasticsearch7: 安装elasticsearch的包,用于操作elasticsearch数据库
     pip3.12 install mysqlclient: 安装mysqlclient的包,用于操作mysql数据库
-    pip3.12 install nltk
-    pip3.12 install fastapi
+    pip3.12 install nltk: 安装nltk的包,用于处理和处理用户提示
+    pip3.12 install fastapi: 安装fastapi的包,用于构建API服务

@@ -1,5 +1,6 @@
 import time
 
+from langfuse.decorators import observe
 from pydantic import BaseModel
 
 from xiaoxi_ai.database.elasticsearch.elasticsearch_client import EsClient
@@ -16,6 +17,7 @@ class KnowledgeEs(EsClient):
     def __init__(self):
         super().__init__("ai_knowledge")
 
+    @observe()
     def search(self, query, top_n=10):
         query = {"instruction": query}
         print('e',time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))

@@ -1,5 +1,6 @@
 import time
 
+from langfuse.decorators import observe
 from pydantic import BaseModel
 from weaviate.classes.config import Property, DataType, Configure
 from weaviate.collections.classes.grpc import HybridFusion, MetadataQuery
@@ -82,6 +83,7 @@ class KnowledgeWeaviate(WeaviateClient):
                 uuid_list.append({'uuid': str(uuid), 'id': aiKnowledgeDictList[i].id})
         return uuid_list
 
+    @observe()
     def search_hybrid(self, query, limit):
         print('w', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         response = self.collections.query.hybrid(
