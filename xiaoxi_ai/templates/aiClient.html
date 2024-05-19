@@ -139,7 +139,8 @@
 
         try {
             // Send the message to the specified endpoint
-            let response = await fetch('/knowledge/ask?text=' + message, {
+            $.ajax({
+                url: '/knowledge/ask?text=' + message,
                 method: 'GET',
                 headers: {
                     'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
@@ -147,20 +148,23 @@
                     'Host': '192.168.16.141:80',
                     'Connection': 'keep-alive'
                 },
+                success: function (data) {
+                    // 转为json对象，在获取数据
+                    data = JSON.parse(data);
+                    var answer = data.ai_message;
+                    var referencData = data.reference_data;
+      
+                    debugger
+                    console.log('Success:', data);
+                    // Display the response data in the display area
+                    document.getElementById("display-area").value += "assistant: " + answer + "\n" + "\n" + "\n";
+                    document.getElementById("referencData").value = referencData;
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error('Error:', errorThrown);
+                    alert('服务异常请联系小王 ' + errorThrown);
+                }
             });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            let data = await response.json();
-
-            // 从 data 对象中获取 referencData 和 answer
-            var referencData = data.reference_data;
-            var answer = data.ai_message;
-            console.log('Success:', data);
-            // Display the response data in the display area
-            document.getElementById("display-area").value += "assistant: " + answer + "\n" + "\n" + "\n";
-            document.getElementById("referencData").value = referencData;
         } catch (error) {
             console.error('Error:', error);
             alert('服务异常请联系小王 ' + error.message);
@@ -168,7 +172,28 @@
 
         clearInput();
     }
+async function sendRequest(method, url, params={}, headers={}) {
+    const defaultHeaders = {
+        'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+        'Accept': '*/*',
+        'Host': '192.168.16.141:80',
+        'Connection': 'keep-alive'
+    };
 
+    try {
+        const response = await axios({
+            method: method,
+            url: url,
+            params: params,
+            headers: {...defaultHeaders, ...headers},
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error:', error);
+        alert('服务异常请联系小王 ' + error.message);
+    }
+}
     // 添加网页知识
     function addUrl() {
         var addUrl = $('#addUrl').val().trim();
