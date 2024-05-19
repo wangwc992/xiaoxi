@@ -133,97 +133,53 @@
         if (!message.trim()) {
             return;  // If the input is empty, stop the function execution
         }
-
-        // Display it in the display area
         document.getElementById("display-area").value += "user: " + message + "\n";
-
-        try {
-            // Send the message to the specified endpoint
-            $.ajax({
-                url: '/knowledge/ask?text=' + message,
-                method: 'GET',
-                headers: {
-                    'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-                    'Accept': '*/*',
-                    'Host': '192.168.16.141:80',
-                    'Connection': 'keep-alive'
-                },
-                success: function (data) {
-                    // 转为json对象，在获取数据
-                    data = JSON.parse(data);
-                    var answer = data.ai_message;
-                    var referencData = data.reference_data;
-      
-                    debugger
-                    console.log('Success:', data);
-                    // Display the response data in the display area
-                    document.getElementById("display-area").value += "assistant: " + answer + "\n" + "\n" + "\n";
-                    document.getElementById("referencData").value = referencData;
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.error('Error:', errorThrown);
-                    alert('服务异常请联系小王 ' + errorThrown);
-                }
-            });
-        } catch (error) {
-            console.error('Error:', error);
-            alert('服务异常请联系小王 ' + error.message);
-        }
-
+        let response = await sendRequest('GET', '/knowledge/ask', {text: message});
+        data = JSON.parse(response);
+        document.getElementById("display-area").value += "assistant: " + data.ai_message + "\n" + "\n" + "\n";
+        document.getElementById("referencData").value = data.reference_data;
         clearInput();
     }
-async function sendRequest(method, url, params={}, headers={}) {
-    const defaultHeaders = {
-        'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-        'Accept': '*/*',
-        'Host': '192.168.16.141:80',
-        'Connection': 'keep-alive'
-    };
 
-    try {
-        const response = await axios({
-            method: method,
-            url: url,
-            params: params,
-            headers: {...defaultHeaders, ...headers},
+    function sendRequest(method, url, data = {}, headers = {}) {
+        debugger
+        const defaultHeaders = {
+            'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+        };
+
+        // 创建一个新的 Promise 对象
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                method: method,
+                url: url,
+                data: data,
+                headers: {...defaultHeaders, ...headers},
+            })
+                .done(function (response) {
+                    // 当请求成功时，解析 Promise 对象并返回数据
+                    resolve(response);
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    // 当请求失败时，拒绝 Promise 对象并返回错误
+                    console.error('Error:', errorThrown);
+                    console.error('Response:', jqXHR.responseText);
+                });
         });
-
-        return response.data;
-    } catch (error) {
-        console.error('Error:', error);
-        alert('服务异常请联系小王 ' + error.message);
     }
-}
-    // 添加网页知识
-    function addUrl() {
+
+    // 解析网页
+    async function addUrl() {
         var addUrl = $('#addUrl').val().trim();
         if (!addUrl) {
             return;
         }
-        $.ajax({
-            url: '/knowledge/ParsingUrl',
-            type: 'GET',
-            data: {url: addUrl},
-            headers: {
-                'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-                'Accept': '*/*',
-                'Host': '192.168.16.141:80',
-                'Connection': 'keep-alive'
-            },
-            success: function (data) {
-                console.log('Success:', data);
-                $('#urlData').val(data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error('Error:', errorThrown);
-                alert('服务异常请联系小王 ' + errorThrown);
-            }
-        });
+        let response = await sendRequest('GET', '/knowledge/ParsingUrl', {url: addUrl});
+        $('#urlData').val(response);
     }
 
 
     // 添加网页知识
-    function addUrlData() {
+    async function addUrlData() {
         console.log(csrfToken);
         var urlData = $("#urlData").val().trim();
         if (!urlData) {
@@ -237,31 +193,14 @@ async function sendRequest(method, url, params={}, headers={}) {
             answer: 'answer'
         }
 
+        let response = await sendRequest('POST', '/knowledge/addUrlData/', data);
+        $("#urlData").val("");
+        alert('添加成功');
 
-        $.ajax({
-            url: '/knowledge/addUrlData/',
-            type: 'POST',
-            headers: {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-                // 添加 CSRF token 到请求头部
-                'X-CSRFToken': csrfToken
-            },
-            data: JSON.stringify(data),
-            success: function (response) {
-                console.log('Success:', response);
-                $("#urlData").val("");
-                alert('添加成功');
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error('Error:', errorThrown);
-                alert('服务异常请联系小王 ' + errorThrown);
-            }
-        });
     }
 
     // 添加基础知识
-    function addBase() {
+    async function addBase() {
         var country = document.getElementById("country").value.trim();
         var school = document.getElementById("school").value.trim();
         var questions = document.getElementById("questions").value.trim();
@@ -275,27 +214,13 @@ async function sendRequest(method, url, params={}, headers={}) {
             questions: questions,
             answer: answer
         };
-
-        $.ajax({
-            url: '/knowledge/addBaseData/',
-            type: 'POST',
-            headers: {
-                'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-                'Accept': '*/*',
-                'Host': '192.168.16.141:80',
-                'Connection': 'keep-alive',
-                'Content-Type': 'application/json'
-            },
-            data: JSON.stringify(data),
-            success: function (response) {
-                console.log('Success:', response);
-                alert('添加成功');
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error('Error:', errorThrown);
-                alert('服务异常请联系小王 ' + errorThrown);
-            }
-        });
+        let response = await sendRequest('POST', '/knowledge/addBaseData/', data);
+        alert('添加成功');
+        // 将表格数据清空
+        document.getElementById("country").value = "";
+        document.getElementById("school").value = "";
+        document.getElementById("questions").value = "";
+        document.getElementById("answer").value = "";
     }
 
 

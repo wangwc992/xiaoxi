@@ -37,16 +37,14 @@ def ParsingUrl(request):
 @csrf_exempt
 def addBaseData(request):
     # 获取原始的请求体并解析 JSON 数据
-    data = json.loads(request.body.decode('utf-8'))
-    baseKnowledgeModel = BaseKnowledgeModel(**data)
+    baseKnowledgeModel = BaseKnowledgeModel(**request.POST.dict())
     response = knowledgeService.addBaseData(baseKnowledgeModel)
     return HttpResponse(response)
 
 
 @csrf_exempt
 def addUrlData(request):
-    data = json.loads(request.body)
-    questions = data['questions']
+    questions = request.POST['questions']
     list = questions.split("\n\n")
     response = knowledgeService.addUrlData(list)
     return HttpResponse(response)
