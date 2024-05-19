@@ -25,15 +25,15 @@ class KnowledgeWeaviate(WeaviateClient):
         self.collections_name = "AiKnowledge"
 
     def create_collection(self):
-        self.client.collections.create(
-            self.collections_name,
-            properties=[  # Define properties
-                Property(name="instruction", data_type=DataType.TEXT),
-                Property(name="output", data_type=DataType.TEXT),
-            ],
-            vector_index_config=Configure.VectorIndex.hnsw()
-
-        )
+        if not self.client.collections.exists(self.collections_name):
+            self.client.collections.create(
+                self.collections_name,
+                properties=[
+                    Property(name="instruction", data_type=DataType.TEXT),
+                    Property(name="output", data_type=DataType.TEXT),
+                ],
+                vector_index_config=Configure.VectorIndex.hnsw()
+            )
 
     def create_model_collection(self):
         '''
