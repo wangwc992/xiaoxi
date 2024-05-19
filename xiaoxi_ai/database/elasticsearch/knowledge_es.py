@@ -20,9 +20,7 @@ class KnowledgeEs(EsClient):
     @observe()
     def search(self, query, top_n=10):
         query = {"instruction": query}
-        print('e',time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         res = super().search_data(query, top_n)
-        print('e',time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         response_list = list()
         for hit in res:
             source = hit['_source']

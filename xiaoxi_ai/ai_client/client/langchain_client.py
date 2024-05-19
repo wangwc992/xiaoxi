@@ -1,3 +1,5 @@
+from langchain_community.chat_models import QianfanChatEndpoint
+from langchain_core.runnables import ConfigurableField
 from langchain_openai import ChatOpenAI
 from dotenv import find_dotenv
 from langchain_community.embeddings import HuggingFaceEmbeddings
@@ -20,13 +22,34 @@ encode_kwargs = {'normalize_embeddings': False}
 
 
 class LangChain:
-    llm = ChatOpenAI(model=OPENAI_MODEL_NAME)  # 默认是gpt-3.5-turbo
+    # 模型1
+    qian_wen = QianfanChatEndpoint(
+        qianfan_ak='nhW0x9Tocm3ZvyhldiBw6gen',
+        qianfan_sk='DS9MyuRcxcyn5fCUyFUqBkvs7ksYxTuX',
+        model='ERNIE-3.5-8K',
+        temperature=0.3,
+    )
+    gpt_model = ChatOpenAI(model=OPENAI_MODEL_NAME, temperature=0.3)  # 默认是gpt-3.5-turbo
 
-    def invoke_with_handler(self,input):
+    # 通过 configurable_alternatives 按指定字段选择模型
+    llm = gpt_model.configurable_alternatives(
+        ConfigurableField(id="llm"),
+        default_key="gpt",
+        qian_wen=qian_wen,
+        # claude=claude_model,
+    )
+
+    def invoke_with_handler(self, input, model_name="gpt"):
+        langfuse_context.update_current_trace(
+            metadata={"model_name": model_name},
+            # 添加模型名称的标签
+            tags=[model_name]
+        )
         langfuse_handler = langfuse_context.get_current_langchain_handler()
-        ai_message = self.llm.invoke(input=input, config={"callbacks": [langfuse_handler]})
+        ai_message = self.llm.with_config(
+            configurable={"llm": model_name}
+        ).invoke(input=input, config={"callbacks": [langfuse_handler]})
         return ai_message
-
 
     embedding = HuggingFaceEmbeddings(
         model_name=LLM_MODEL_PATH + "BAAI/bge-large-zh-v1.5",
@@ -72,4 +95,4 @@ class LangChain:
 if __name__ == '__main__':
     langchain = LangChain()
     print(langchain.llm.invoke("请问悉尼大学什么时候可以申请免学分"))
-    print(langchain.embedding.embed_query("请问悉尼大学什么时候可以申请免学分"))
+    # print(langchain.embedding.embed_query("请问悉尼大学什么时候可以申请免学分"))

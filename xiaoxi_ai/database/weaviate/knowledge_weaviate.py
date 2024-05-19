@@ -85,7 +85,6 @@ class KnowledgeWeaviate(WeaviateClient):
 
     @observe()
     def search_hybrid(self, query, limit):
-        print('w', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         response = self.collections.query.hybrid(
             query=query,
             fusion_type=HybridFusion.RELATIVE_SCORE,
@@ -95,7 +94,6 @@ class KnowledgeWeaviate(WeaviateClient):
             return_metadata=MetadataQuery(score=True, explain_score=True),
             limit=limit,
         )
-        print('w', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         response_list = []
         for o in response.objects:
             knowledge_weaviate_model = KnowledgeWeaviateModel(uuid=str(o.uuid), instruction=o.properties['instruction'],
