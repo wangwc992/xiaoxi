@@ -29,64 +29,12 @@ class WeaviateClient:
         articles_config = self.collections.config.get()
         print(articles_config)
 
-    def create_collection(self):
-        self.client.collections.create(
-            self.collections_name,
-            vector_index_config=Configure.VectorIndex.hnsw(),
-            properties=[  # properties configuration is optional
-                Property(name="instruction", data_type=DataType.TEXT),
-                Property(name="output", data_type=DataType.TEXT),
-            ]
-        )
-
-    def create_model_collection(self):
-        self.client.collections.create(
-            self.collections_name,
-            properties=[  # Define properties
-                Property(name="instruction", data_type=DataType.TEXT),
-                Property(name="output", data_type=DataType.TEXT),
-            ],
-
-            vectorizer_config=[
-                # Set a named vector
-                Configure.NamedVectors.text2vec_huggingface(  # Set the vectorizer
-                    name="instruction",  # Set a named vector
-                    source_properties=["instruction"],  # Set the source property(ies)
-                    model="BAAI/bge-large-zh-v1.5",  # Set the model,可以不写
-                    vector_index_config=Configure.VectorIndex.hnsw(),  # Set the vector index configuration（default）
-                ),
-                Configure.NamedVectors.text2vec_huggingface(
-                    name="output",
-                    source_properties=["instruction"],
-                    model="BAAI/bge-large-zh-v1.5",
-                    vector_index_config=Configure.VectorIndex.hnsw(),
-                )
-            ],
-        )
-
-    # 插入数据
-    def insert_data_batch(self, aiKnowledgeDictList):
-        # 返回uuid列表
-        uuid_list = list()
-        for item in aiKnowledgeDictList:
-            uuid = self.collections.data.insert(
-                properties=item,
-                # vector=bgeEmbedding.sentence_vec(json.dumps(item)).tolist()
-            )
-            uuid_list.append(uuid)
-        return uuid_list
-
-    def insert_data(self, data, vecs):
-        # 返回uuid列表
-        return self.collections.data.insert(properties=data, vector=vecs)
-
     # 查询数据
     def search_hybrid(self, query):
         response = self.collections.query.hybrid(
             query=query,
             fusion_type=HybridFusion.RELATIVE_SCORE,
             target_vector="instruction",
-            # vector=bgeEmbedding.sentence_vec(query).tolist(),
             query_properties=["instruction", "output"],
             return_metadata=MetadataQuery(score=True, explain_score=True),
             limit=10,
@@ -108,8 +56,7 @@ class WeaviateClient:
         response = self.collections.query.near_text(
             query=query,
             limit=10,
-            target_vector="instruction",  # Specify the target vector for named vector collections
-            # vector=bgeEmbedding.sentence_vec(query).tolist(),
+            target_vector="instruction",
             return_metadata=MetadataQuery(distance=True)
         )
         return response.objects
@@ -130,28 +77,24 @@ class WeaviateClient:
         )
         return response.objects
 
-    # 删除数据
-    def delete_data(self, where):
-        self.collections.data.delete_many(
-            where=Filter.by_property("title").like("*悉尼*"),
-            # 查看将要被删除的数据
-            # dry_run=True,
-            # verbose=True
-        )
+    def search_id(self, uuid):
+        data_object = self.collections.query.fetch_object_by_id(uuid)
+        print(data_object.properties)
 
-    # 查询数据
-    def query_data_near_text2(self, query):
-        response = self.collections.query.near_text(
-            query=query,
-            distance=0.6,
-            move_to=Move(force=0.85, concepts="haute couture"),
-            move_away=Move(force=0.45, concepts="finance"),
-            return_metadata=MetadataQuery(distance=True),
-            limit=5
-        )
+    # 插入数据
+    def insert_data_batch(self, aiKnowledgeDictList):
+        uuid_list = list()
+        for item in aiKnowledgeDictList:
+            uuid = self.collections.data.insert(
+                properties=item,
+            )
+            uuid_list.append(uuid)
+        return uuid_list
 
-        return response.objects
+    def insert_data(self, data, vecs):
+        return self.collections.data.insert(properties=data, vector=vecs)
 
+    # 更新数据
     def update_data(self, uuid, update_data):
         self.collections.data.update(
             uuid=uuid,
@@ -160,9 +103,14 @@ class WeaviateClient:
             }
         )
 
-    def search_id(self, uuid):
-        data_object = self.collections.query.fetch_object_by_id(uuid)
-        print(data_object.properties)
+    # 删除数据
+    def delete_data(self, where):
+        self.collections.data.delete_many(
+            where=Filter.by_property("title").like("*悉尼*"),
+        )
+
+    def delete_all_data(self):
+        self.collections.data.delete_all()
 
     def delete_data_id(self, uuid):
         collection = self.collections.collections.get("EphemeralObject")
