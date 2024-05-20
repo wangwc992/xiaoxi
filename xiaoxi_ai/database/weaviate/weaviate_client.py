@@ -10,13 +10,8 @@ langchain_client = langchain_client.LangChain()
 
 
 class WeaviateClient:
-    client = weaviate.connect_to_custom(
-        http_host=settings.WEAVIATE_HOST,
-        http_port=8080,
-        http_secure=False,
-        grpc_host="localhost",
-        grpc_port=50051,
-        grpc_secure=False,
+    client = weaviate.connect_to_local(
+        host=settings.WEAVIATE_HOST,
         headers={"X-Huggingface-Api-Key": "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"}
     )
 

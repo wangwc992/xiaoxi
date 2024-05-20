@@ -2,7 +2,7 @@ import os
 import django
 from langfuse.decorators import observe, langfuse_context
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'xiaoxi.settings_dev')  # 替换为你的settings文件路径
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'xiaoxi.settings_prod')  # 替换为你的settings文件路径
 django.setup()
 
 from xiaoxi_ai.database.elasticsearch import knowledge_es
@@ -17,7 +17,6 @@ def insert_data():
         name="insert_data",
         user_id="wzr",
     )
-    KnowledgeWeaviate().delete_all_data()
     KnowledgeWeaviate().create_collection()
     es = knowledge_es.KnowledgeEs()
     # 获取mysql数据
