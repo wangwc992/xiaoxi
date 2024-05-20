@@ -11,18 +11,19 @@ from xiaoxi_ai.database.mysql import ai_knowledge_mapper
 from xiaoxi_ai.common.text_utils.html_util import HtmlUtils
 
 
-@observe()
+# @observe()
 def insert_data():
     langfuse_context.update_current_trace(
         name="insert_data",
         user_id="wzr",
     )
+    KnowledgeWeaviate().delete_all_data()
     KnowledgeWeaviate().create_collection()
     es = knowledge_es.KnowledgeEs()
     # 获取mysql数据
     i = 0
     while True:
-        ai_knowledge_list = ai_knowledge_mapper.select_ai_knowledge_by_id(i * 300, 10)
+        ai_knowledge_list = ai_knowledge_mapper.select_ai_knowledge_by_id(i * 300, 300)
         if not ai_knowledge_list:
             break
         # 遍历出 weaviate_id 为空的数据
