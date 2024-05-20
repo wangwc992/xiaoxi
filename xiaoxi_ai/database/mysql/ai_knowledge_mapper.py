@@ -38,7 +38,7 @@ def insert_ai_knowledge(weaviate_id, school_name, country_name, question, answer
 
 # 根据id查询学校信息
 def select_ai_knowledge_by_id(id, limit):
-    mySQLConnectCur.execute('select * from ai_knowledge where id>=%s limit %s', (id, limit))
+    mySQLConnectCur.execute('select * from ai_knowledge where id> %s limit %s', (id, limit))
     results = mySQLConnectCur.fetchall()
 
     # Convert each tuple to an AiKnowledge object
