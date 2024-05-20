@@ -23,23 +23,25 @@ encode_kwargs = {'normalize_embeddings': False}
 
 class LangChain:
     # 模型1
-    qian_wen = QianfanChatEndpoint(
+    qianfan = QianfanChatEndpoint(
         qianfan_ak='nhW0x9Tocm3ZvyhldiBw6gen',
         qianfan_sk='DS9MyuRcxcyn5fCUyFUqBkvs7ksYxTuX',
         model='ERNIE-3.5-8K',
         temperature=0.3,
     )
     gpt_model = ChatOpenAI(model=OPENAI_MODEL_NAME, temperature=0.3)  # 默认是gpt-3.5-turbo
+    gpt_4o = ChatOpenAI(model=OPENAI_MODEL_NAME, temperature=0.3)  # 默认是gpt-3.5-turbo
 
     # 通过 configurable_alternatives 按指定字段选择模型
     llm = gpt_model.configurable_alternatives(
         ConfigurableField(id="llm"),
-        default_key="gpt",
-        qian_wen=qian_wen,
+        default_key="gpt3.5",
+        qianfan=qianfan,
+        gpt_4o=gpt_4o,
         # claude=claude_model,
     )
 
-    def invoke_with_handler(self, input, model_name="gpt"):
+    def invoke_with_handler(self, input, model_name="gpt3.5"):
         langfuse_context.update_current_trace(
             metadata={"model_name": model_name},
             # 添加模型名称的标签

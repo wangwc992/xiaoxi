@@ -21,7 +21,7 @@ langchain_client = langchain_client.LangChain()
 class KnowledgeService:
 
     @observe()
-    def completion(self, query):
+    def completion(self, query, model_name="qianfan"):
         langfuse_context.update_current_trace(
             user_id="1001",
         )
@@ -40,7 +40,7 @@ class KnowledgeService:
         file_path = os.path.join(base_dir, '../../../prompt/knowledge_prompt.txt')
         template = PromptTemplate.from_file(file_path)
         prompt = template.format(input=query, reference_data=reference_data)
-        ai_message = langchain_client.invoke_with_handler(prompt, model_name="qian_wen")
+        ai_message = langchain_client.invoke_with_handler(prompt, model_name)
         response_metadata = ai_message.response_metadata
         token_usage = response_metadata['token_usage']
         ai_chat_log_mapper.insert_ai_chat_log(ai_message.id, response_metadata['model_name'], query, prompt,
