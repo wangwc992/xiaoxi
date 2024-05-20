@@ -67,8 +67,12 @@
         </div>
         <div>
             <div class="center-content">
-                <label for="url">请求地址：</label>
-                <input id="url" style="width: 900px; height: 30px;" value="http://localhost:8000"></input>
+                <label for="url">选择模型：</label>
+                <select id="model_name" style="width: 900px; height: 30px;">
+                    <option value="qianfan">qianfan</option>
+                    <option value="gpt3.5">gpt3.5</option>
+                    <option value="gpt_4o">gpt_4o</option>
+                </select>
             </div>
             <div>
                 <textarea id="display-area" style="width: 900px; height: 500px; overflow: auto;" readonly></textarea>
@@ -107,8 +111,6 @@
         </div>
     </div>
 </div>
-
-
 <script>
 
     // 清空输入框
@@ -124,7 +126,7 @@
             sendMessage();
         }
     });
-    var url = document.getElementById("url").value.trim();
+    var model_name = document.getElementById("model_name").value.trim();
 
     // 发送消息
     async function sendMessage() {
@@ -141,42 +143,15 @@
         clearInput();
     }
 
-    function sendRequest(method, url, data = {}, headers = {}) {
-        debugger
-        const defaultHeaders = {
-            'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-        };
-
-        // 创建一个新的 Promise 对象
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                method: method,
-                url: url,
-                data: data,
-                headers: {...defaultHeaders, ...headers},
-            })
-                .done(function (response) {
-                    // 当请求成功时，解析 Promise 对象并返回数据
-                    resolve(response);
-                })
-                .fail(function (jqXHR, textStatus, errorThrown) {
-                    // 当请求失败时，拒绝 Promise 对象并返回错误
-                    console.error('Error:', errorThrown);
-                    console.error('Response:', jqXHR.responseText);
-                });
-        });
-    }
-
     // 解析网页
     async function addUrl() {
         var addUrl = $('#addUrl').val().trim();
         if (!addUrl) {
             return;
         }
-        let response = await sendRequest('GET', '/knowledge/ParsingUrl', {url: addUrl});
+        let response = await sendRequest('GET', '/knowledge/ParsingUrl/', {url: addUrl});
         $('#urlData').val(response);
     }
-
 
     // 添加网页知识
     async function addUrlData() {
@@ -223,6 +198,35 @@
         document.getElementById("answer").value = "";
     }
 
+    function sendRequest(method, url, data = {}, headers = {}) {
+        const defaultHeaders = {
+            'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+        };
+
+        // model_name 添加为默认的请求头
+        if (model_name) {
+            defaultHeaders['model_name'] = model_name;
+        }
+        // 创建一个新的 Promise 对象
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                method: method,
+                url: url,
+                data: data,
+                headers: {"model-name": "gpt"},
+            })
+                .done(function (response) {
+                    // 当请求成功时，解析 Promise 对象并返回数据
+                    resolve(response);
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    // 当请求失败时，拒绝 Promise 对象并返回错误
+                    console.error('Error:', errorThrown);
+                    console.error('Response:', jqXHR.responseText);
+                });
+        });
+    }
 
 </script>
 </body>
