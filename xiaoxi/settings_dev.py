@@ -12,3 +12,5 @@ MYSQL_PASSWD = "root"
 MYSQL_DB = "ai_knowledge_base"
 
 WEAVIATE_HOST = "127.0.0.1"
+
+LLM_MODEL_PATH = "D:/LLM/"

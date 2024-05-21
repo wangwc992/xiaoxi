@@ -1,3 +1,4 @@
+from django.conf import settings
 from langchain_community.chat_models import QianfanChatEndpoint
 from langchain_core.runnables import ConfigurableField
 from langchain_openai import ChatOpenAI
@@ -17,7 +18,7 @@ load_dotenv(".env")
 OPENAI_MODEL_35 = os.getenv("OPENAI_MODEL_35")
 OPENAI_MODEL_4o = os.getenv("OPENAI_MODEL_4o")
 
-LLM_MODEL_PATH = os.getenv("LLM_MODEL_PATH")
+LLM_MODEL_PATH = settings.LLM_MODEL_PATH
 model_kwargs = {'device': 'cpu'}
 encode_kwargs = {'normalize_embeddings': False}
 
