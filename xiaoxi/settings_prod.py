@@ -13,4 +13,4 @@ MYSQL_DB = "test_xxlxdb"
 
 WEAVIATE_HOST = "192.168.0.139"
 
-LLM_MODEL_PATH = "D:/LLM/"
+LLM_MODEL_PATH = "/home/wishfyc/LLM/"
