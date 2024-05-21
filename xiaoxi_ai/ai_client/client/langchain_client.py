@@ -14,7 +14,8 @@ _ = load_dotenv(find_dotenv())
 
 # 加载.env文件
 load_dotenv(".env")
-OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME")
+OPENAI_MODEL_35 = os.getenv("OPENAI_MODEL_35")
+OPENAI_MODEL_4o = os.getenv("OPENAI_MODEL_4o")
 
 LLM_MODEL_PATH = os.getenv("LLM_MODEL_PATH")
 model_kwargs = {'device': 'cpu'}
@@ -29,8 +30,8 @@ class LangChain:
         model='ERNIE-3.5-8K',
         temperature=0.3,
     )
-    gpt_model = ChatOpenAI(model=OPENAI_MODEL_NAME, temperature=0.3)  # 默认是gpt-3.5-turbo
-    gpt_4o = ChatOpenAI(model=OPENAI_MODEL_NAME, temperature=0.3)  # 默认是gpt-3.5-turbo
+    gpt_model = ChatOpenAI(model=OPENAI_MODEL_35, temperature=0.3)  # 默认是gpt-3.5-turbo
+    gpt_4o = ChatOpenAI(model=OPENAI_MODEL_4o, temperature=0.3)  # 默认是gpt-3.5-turbo
 
     # 通过 configurable_alternatives 按指定字段选择模型
     llm = gpt_model.configurable_alternatives(
