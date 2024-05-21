@@ -31,6 +31,12 @@ class LangChain:
         model='ERNIE-3.5-8K',
         temperature=0.3,
     )
+    qianfan_4 = QianfanChatEndpoint(
+        qianfan_ak='92uPuxpuGvrPYQtDtKGs3rNV',
+        qianfan_sk='gTcPd1eZUTT7ZK6zuvIsdS1M2rlpLSrB',
+        model='ERNIE-4.0-8K',
+        temperature=0.3,
+    )
     gpt_model = ChatOpenAI(model=OPENAI_MODEL_35, temperature=0.3)  # 默认是gpt-3.5-turbo
     gpt_4o = ChatOpenAI(model=OPENAI_MODEL_4o, temperature=0.3)  # 默认是gpt-3.5-turbo
 
@@ -40,6 +46,7 @@ class LangChain:
         default_key="gpt3.5",
         qianfan=qianfan,
         gpt_4o=gpt_4o,
+        qianfan_4=qianfan_4,
         # claude=claude_model,
     )
 
