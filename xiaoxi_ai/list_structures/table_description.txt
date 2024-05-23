@@ -1,0 +1,4 @@
+service_confirm_school:申请定校表{定校编号，serviceId,学校的id、中英文名，专业的id、中英文名}
+service_master：申请主表{serviceId,学生实名,顾问姓名}
+apply_main：申请主表{applyId,serviceId}
+apply_education：申请教育背景表{applyId,学校名，专业名称、学位，GPA，校区所在国家}

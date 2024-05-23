@@ -37,11 +37,11 @@ class LangChain:
         model='ERNIE-4.0-8K',
         temperature=0.3,
     )
-    gpt_model = ChatOpenAI(model=OPENAI_MODEL_35, temperature=0.3)  # 默认是gpt-3.5-turbo
+    gpt_3 = ChatOpenAI(model=OPENAI_MODEL_35, temperature=0.3)  # 默认是gpt-3.5-turbo
     gpt_4o = ChatOpenAI(model=OPENAI_MODEL_4o, temperature=0.3)  # 默认是gpt-3.5-turbo
 
     # 通过 configurable_alternatives 按指定字段选择模型
-    llm = gpt_model.configurable_alternatives(
+    llm = gpt_3.configurable_alternatives(
         ConfigurableField(id="llm"),
         default_key="gpt3.5",
         qianfan=qianfan,
