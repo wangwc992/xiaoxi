@@ -1,11 +1,11 @@
 import pandas as pd
 import xiaoxi_ai.database.mysql.mysql_connect as mysql_connect
 
-
-
 cursor = mysql_connect.MySQLConnect().cur
 
-def get_student_info(cla, student_name: str, service_id: str) -> str:
+def get_student_info(student_name:str):
+    # '''通过学生姓名或者service_id获取学生信息'''
+    service_id = ''
     # student_name 和 service_id 都是空直接结束
     if not student_name and not service_id:
         return "学生姓名和service_id都为空，请重新输入"
