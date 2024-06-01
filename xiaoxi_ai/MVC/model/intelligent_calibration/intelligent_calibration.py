@@ -32,4 +32,4 @@ class IntelligentCalibration(BaseModel):
         info_fields = [self.grade_score, self.background_institution, self.country_name, self.academic_degree,
                        self.school_name_en, self.major_name_en]
         provided_info = [field for field in info_fields if field is not None]
-        return len(provided_info) >= 3
+        return len(provided_info) >= 4

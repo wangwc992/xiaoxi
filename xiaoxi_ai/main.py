@@ -25,12 +25,11 @@ tools = [
 
 result = {'functions': [{'args': {
     'intelligentCalibration': {'background_institution': '帕奈尔中学', 'country_name': '澳洲',
-                               'school_name_zh': '澳大利亚悉尼大学', 'academic_degree': 'Bachelor',
-                               'major_name_en': 'Computer Science', 'IELTS_score': 7.5, 'grade_type': 'gpa',
-                               'grade_score': 3.5}}, 'type': 'intelligentCalibration'}], 'text': ''}
+                               'school_name_zh': '澳大利亚悉尼大学'}}, 'type': 'intelligentCalibration'}], 'text': ''}
 
 for function in result['functions']:
     method_name = function['type']
     parameters = function['args']
     action = Action(name=method_name, args=parameters)
-    exec_action(tools, action)
+    prompt = exec_action(tools, action)
+    print(prompt)

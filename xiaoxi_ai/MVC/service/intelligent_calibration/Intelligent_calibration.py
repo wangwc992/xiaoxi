@@ -1,3 +1,7 @@
+import os
+
+from langchain_core.prompts import PromptTemplate
+
 from xiaoxi_ai.MVC.model.intelligent_calibration.intelligent_calibration import IntelligentCalibration
 from xiaoxi_ai.database.mysql import country_info_mapper, zn_school_info_mapper, zn_school_department_project_mapper, \
     school_info_britain_req_mapper, student_matriculate_case_mapper, service_confirm_school_mapper, school_china_mapper
@@ -9,8 +13,11 @@ def intelligent_calibration(intelligentCalibration: IntelligentCalibration):
     # 判断提供的信息是否满足
     is_enough = intelligentCalibration.is_enough_information()
     if not is_enough:
-        # TODO prompt 待编写
-        return ''
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(base_dir, '../../../prompt/calibration_information_insufficient.txt')
+        template = PromptTemplate.from_file(file_path)
+        prompt = template.format(input=intelligentCalibration)
+        return prompt
 
     # 获取学校和专业的名称，英文名优先
     school_name = intelligentCalibration.school_name_en if intelligentCalibration.school_name_en else intelligentCalibration.school_name_zh
@@ -83,7 +90,21 @@ def intelligent_calibration(intelligentCalibration: IntelligentCalibration):
         if project.school_id in result_dict:
             result_dict[project.school_id]["projects"].append(project)
 
+    project_data_list = object_to_list(zn_school_department_project_list)
+    school_data_list = object_to_list(zn_school_info_list)
+    matriculate_case_data_list = object_to_list(student_matriculate_case_list)
 
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, '../../../prompt/intelligent_calibration.txt')
+    template = PromptTemplate.from_file(file_path)
+    prompt = template.format(input=intelligentCalibration,
+                             school_Information=school_data_list,
+                             professional_information=project_data_list,
+                             admission_case=matriculate_case_data_list)
+    return prompt
+
+
+def object_to_list(zn_school_info_list):
     # 获取对象的属性名列表
     if zn_school_info_list:
         attribute_names = list(zn_school_info_list[0].__dict__.keys())
@@ -91,11 +112,7 @@ def intelligent_calibration(intelligentCalibration: IntelligentCalibration):
         attribute_names = []
     # 创建一个新的列表，第一行是属性名
     data_list = [attribute_names]
-
     # 往后每一行是每一个对象的属性值
     for obj in zn_school_info_list:
         data_list.append([getattr(obj, attr) for attr in attribute_names])
-
-    # 打印结果
-    for row in data_list:
-        print(row)
+    return data_list
