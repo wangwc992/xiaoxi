@@ -23,7 +23,7 @@ def index(request):
 
 def ask(request):
     model_name = request.headers.get('Model-Name', 'qianfan')
-    response = knowledgeService.completion(request.GET['text'], model_name)
+    response = knowledgeService.information_consultant(request.GET['text'], model_name)
     print(response)
     return HttpResponse(response)
 

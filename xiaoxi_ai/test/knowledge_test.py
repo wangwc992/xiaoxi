@@ -10,4 +10,4 @@ import xiaoxi_ai.MVC.service.knowledge.knowledge as knowledge
 knowledge_service = knowledge.KnowledgeService()
 
 if __name__ == '__main__':
-    print(knowledge_service.completion("西澳大学大四流程通过后，如果接受了录取，是否影响奖学金的评估", "gpt4o"))
+    print(knowledge_service.information_consultant("西澳大学大四流程通过后，如果接受了录取，是否影响奖学金的评估", "gpt4o"))

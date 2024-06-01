@@ -5,6 +5,7 @@ from xiaoxi_ai.MVC.service.intelligent_calibration.Intelligent_calibration impor
 from xiaoxi_ai.tools.student_info import get_student_info
 from typing import Optional, Dict, Any
 from langchain_core.pydantic_v1 import BaseModel, Field
+from xiaoxi_ai.MVC.service.knowledge.knowledge import information_consultant
 
 
 class Action(BaseModel):
@@ -49,8 +50,14 @@ search_student_info_tool = StructuredTool.from_function(
     description="获取学生信息",
 )
 
-get_calibration_school = StructuredTool.from_function(
+information_consultant = StructuredTool.from_function(
+    func=information_consultant,
+    name="informationConsultant",
+    description="推断学生是否想去留学，提供留学意见",
+)
+
+intelligent_calibration = StructuredTool.from_function(
     func=intelligent_calibration,
     name="intelligentCalibration",
-    description="根据学生提供的信息，智能校准学校和专业，至少需要提供不低于命中的三个信息",
+    description="根据学生提供的信息，判断是否需要推荐学校和专业，至少需要提供不低于命中的三个信息",
 )

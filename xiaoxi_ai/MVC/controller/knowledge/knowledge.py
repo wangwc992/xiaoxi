@@ -23,7 +23,7 @@ knowledgeService = KnowledgeService()
 
 @app.get("/ask")
 async def completion(text):
-    response = knowledgeService.completion(text)
+    response = knowledgeService.information_consultant(text)
     return response
 
 
