@@ -17,7 +17,7 @@
 ) ENGINE=InnoDB AUTO_INCREMENT=202 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='国家信息表';'''
 
 # 创建实体类
-from typing import Optional, Dict, Any
+from typing import Optional
 from langchain_core.pydantic_v1 import Field
 from pydantic import BaseModel
 from datetime import datetime
