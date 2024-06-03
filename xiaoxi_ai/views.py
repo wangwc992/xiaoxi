@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from xiaoxi_ai.MVC.controller.knowledge.knowledge import knowledgeService
 from xiaoxi_ai.MVC.model.knowledge.knowledge_model import BaseKnowledgeModel
+from xiaoxi_ai.main import invoke_gpt
 
 
 # Create your views here.
@@ -23,7 +24,8 @@ def index(request):
 
 def ask(request):
     model_name = request.headers.get('Model-Name', 'qianfan')
-    response = knowledgeService.information_consultant(request.GET['text'], model_name)
+    response = invoke_gpt(request.GET['text'], model_name)
+    # response = knowledgeService.information_consultant(request.GET['text'], model_name)
     print(response)
     return HttpResponse(response)
 

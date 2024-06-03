@@ -9,6 +9,7 @@ from transformers import pipeline
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
 import os
+from langchain_community.chat_message_histories.in_memory import ChatMessageHistory
 
 # 加载.env文件
 _ = load_dotenv(find_dotenv())
@@ -50,7 +51,7 @@ class LangChain:
         # claude=claude_model,
     )
 
-    def invoke_with_handler(self, input, model_name="gpt3.5"):
+    def invoke_with_handler(self, input, model_name="gpt3.5", chat_history: ChatMessageHistory = None):
         langfuse_context.update_current_trace(
             metadata={"model_name": model_name},
             # 添加模型名称的标签
@@ -59,7 +60,10 @@ class LangChain:
         langfuse_handler = langfuse_context.get_current_langchain_handler()
         ai_message = self.llm.with_config(
             configurable={"llm": model_name}
-        ).invoke(input=input, config={"callbacks": [langfuse_handler]})
+        ).invoke({
+            "input": input,
+            "chat_history": chat_history.messages,
+        }, config={"callbacks": [langfuse_handler]})
         return ai_message
 
     embedding = HuggingFaceEmbeddings(

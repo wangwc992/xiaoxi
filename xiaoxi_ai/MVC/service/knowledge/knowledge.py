@@ -24,10 +24,8 @@ def information_consultant(query: str) -> dict:
     )
     # 获取向量数据类表
     knowledge_weaviate_list = knowledgeWeaviate.search_hybrid(query, 20)
-    print(knowledge_weaviate_list)
     # 获取es数据
     knowledge_es_list = esClient.search(query, 20)
-    print(knowledge_es_list)
     # 合并排序
     rrf_list = rank.rrf([knowledge_weaviate_list, knowledge_es_list])
     n = min(10, len(rrf_list))
@@ -63,7 +61,7 @@ class KnowledgeService:
         file_path = os.path.join(base_dir, '../../../prompt/knowledge_prompt.txt')
         template = PromptTemplate.from_file(file_path)
         prompt = template.format(input=query, reference_data=reference_data)
-        ai_message = langchain_client.invoke_with_handler(prompt, model_name)
+        ai_message = langchain_client.invoke_with_handler(prompt, model_name,"")
         response_metadata = ai_message.response_metadata
         token_usage = response_metadata['token_usage']
         ai_chat_log_mapper.insert_ai_chat_log(ai_message.id, response_metadata['model_name'], query, prompt,
