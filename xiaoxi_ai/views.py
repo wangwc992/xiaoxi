@@ -24,7 +24,8 @@ def index(request):
 
 def ask(request):
     model_name = request.headers.get('Model-Name', 'qianfan')
-    response = invoke_gpt(request.GET['text'], model_name)
+    token = request.headers.get('token', '1001')
+    response = invoke_gpt(request.GET['text'], model_name,token)
     # response = knowledgeService.information_consultant(request.GET['text'], model_name)
     print(response)
     return HttpResponse(response)

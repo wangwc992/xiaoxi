@@ -39,13 +39,12 @@ def save_chat_history(user_id, chat_history):
 
 
 @observe()
-def invoke_gpt(query: str, model_name: str) -> str:
+def invoke_gpt(query: str, model_name: str, token: str) -> str:
     langfuse_context.update_current_trace(
         user_id="1001",
     )
-    user_id = 1001
-    chat_history = get_chat_history(user_id)
-    print(chat_history.messages)
+    if token:
+        chat_history = get_chat_history(token)
 
     query = query
     llm = LangChain().gpt_4o
@@ -101,7 +100,7 @@ def invoke_gpt(query: str, model_name: str) -> str:
 
 
 if __name__ == '__main__':
-    invoke_gpt('悉尼大学的学费',"gpt_3.5")
+    invoke_gpt('悉尼大学的学费', "gpt_3.5")
     # while True:
     #     user_input = input("输入： ")
     #     invoke_gpt(user_input, "gpt_4o")
