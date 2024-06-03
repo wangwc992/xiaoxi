@@ -53,11 +53,11 @@ search_student_info_tool = StructuredTool.from_function(
 information_consultant = StructuredTool.from_function(
     func=information_consultant,
     name="informationConsultant",
-    description="推断学生是否想去留学，提供留学意见",
+    description="没有命中其他的function calling时，调用这个function",
 )
 
 intelligent_calibration = StructuredTool.from_function(
     func=intelligent_calibration,
     name="intelligentCalibration",
-    description="根据学生提供的信息，判断是否需要推荐学校和专业，至少需要提供不低于命中的三个信息",
+    description="学生想去留学，推荐学校和专业",
 )

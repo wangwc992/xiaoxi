@@ -50,10 +50,11 @@ from xiaoxi_ai.database.mysql import mysql_connect
 mySQLConnectCur = mysql_connect.MySQLConnect().cur
 
 # 创建实体类
-from typing import Optional, Dict, Any
+from typing import Optional
 from langchain_core.pydantic_v1 import Field
 from datetime import datetime
 from langchain_core.pydantic_v1 import BaseModel
+import logging
 
 class StudentMatriculateCase(BaseModel):
     id: Optional[int] = Field(None, description="主键id")
@@ -112,7 +113,7 @@ def select_by_student_matriculate_case(case: StudentMatriculateCase) -> list[Stu
             else:
                 query += f"{field} = %s AND "
             values.append(value)
-    query = query.rstrip(" AND ")
+    query = query.rstrip(" AND ")+" LIMIT 5"
     # 打印SQL语句
     print("Executing query:", mySQLConnectCur.mogrify(query, values))
     # Execute the query

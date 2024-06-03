@@ -111,3 +111,19 @@ def select_by_ids(ids):
     result_dict = [dict(zip(column_names, row)) for row in result]
     # result_dict 变成 CountryInfo 对象
     return [ZnSchoolInfo(**row) for row in result_dict]
+
+
+def select_by_id(school_id):
+    mySQLConnectCur.execute('select * from zn_school_info where id=%s', (school_id,))
+    result = mySQLConnectCur.fetchone()
+    if result is None:
+        return None
+
+    # Get column names from cursor description
+    column_names = [column[0] for column in mySQLConnectCur.description]
+
+    # Convert result tuple to dictionary
+    result_dict = dict(zip(column_names, result))
+    # result_dict 变成 CountryInfo 对象
+
+    return ZnSchoolInfo(**result_dict)

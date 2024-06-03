@@ -59,7 +59,7 @@ def select_by_model(schoolInfoBritainReq:SchoolInfoBritainReq):
         sql += ' and china_school_id=%s'
         params.append(schoolInfoBritainReq.china_school_id)
     if schoolInfoBritainReq.gpa_req is not None:
-        sql += ' and gpa_req=%s'
+        sql += ' and gpa_req >=%s'
         params.append(schoolInfoBritainReq.gpa_req)
     mySQLConnectCur.execute(sql, tuple(params))
     result = mySQLConnectCur.fetchall()

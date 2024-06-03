@@ -29,7 +29,9 @@ class IntelligentCalibration(BaseModel):
             grade_score，background_institution、country_name、academic_degree、school_name_en、major_name_en、intent_country
             至少需要提供不低于命中的三个信息
         '''
+        school_name = self.school_name_en if self.school_name_en else self.school_name_zh
+        major_name = self.major_name_en if self.major_name_en else self.major_name_zh
         info_fields = [self.grade_score, self.background_institution, self.country_name, self.academic_degree,
-                       self.school_name_en, self.major_name_en]
+                       school_name, major_name]
         provided_info = [field for field in info_fields if field is not None]
-        return len(provided_info) >= 4
+        return len(provided_info) >= 3

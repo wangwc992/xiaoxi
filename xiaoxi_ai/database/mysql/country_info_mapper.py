@@ -60,3 +60,19 @@ def select_by_name(name):
     # result_dict 变成 CountryInfo 对象
 
     return CountryInfo(**result_dict)
+
+
+def select_by_id(country_id):
+    mySQLConnectCur.execute('select * from country_info where id=%s', (country_id,))
+    result = mySQLConnectCur.fetchone()
+    if result is None:
+        return None
+
+    # Get column names from cursor description
+    column_names = [column[0] for column in mySQLConnectCur.description]
+
+    # Convert result tuple to dictionary
+    result_dict = dict(zip(column_names, result))
+    # result_dict 变成 CountryInfo 对象
+
+    return CountryInfo(**result_dict)

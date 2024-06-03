@@ -5,11 +5,12 @@ from langchain_core.prompts import PromptTemplate
 from xiaoxi_ai.MVC.model.intelligent_calibration.intelligent_calibration import IntelligentCalibration
 from xiaoxi_ai.database.mysql import country_info_mapper, zn_school_info_mapper, zn_school_department_project_mapper, \
     school_info_britain_req_mapper, student_matriculate_case_mapper, service_confirm_school_mapper, school_china_mapper
+from xiaoxi_ai.database.mysql.country_info_mapper import CountryInfo
 from xiaoxi_ai.database.mysql.school_info_britain_req_mapper import SchoolInfoBritainReq
 from xiaoxi_ai.database.mysql.student_matriculate_case_mapper import StudentMatriculateCase
 
 
-def intelligent_calibration(intelligentCalibration: IntelligentCalibration):
+def intelligent_calibration(intelligentCalibration: IntelligentCalibration) -> dict:
     # 判断提供的信息是否满足
     is_enough = intelligentCalibration.is_enough_information()
     if not is_enough:
@@ -25,18 +26,27 @@ def intelligent_calibration(intelligentCalibration: IntelligentCalibration):
     gpa_req = intelligentCalibration.grade_score if intelligentCalibration.grade_type == 'gpa' else None
 
     # 获取国家，学校，留学学校，留学专业
-    country_info = None
+    country_info = CountryInfo()
     zn_school_info = None
     zn_school_department_project = None
     school_china = None
 
     # 获取国家，留学学校，留学专业的信息
-    if intelligentCalibration.country_name:
-        country_info = country_info_mapper.select_by_name(intelligentCalibration.country_name)
-    if school_name:
-        zn_school_info = zn_school_info_mapper.select_by_name(school_name)
     if major_name:
         zn_school_department_project = zn_school_department_project_mapper.select_noe_by_name(major_name)
+        if zn_school_department_project:
+            school_id = zn_school_department_project.school_id
+            zn_school_info = zn_school_info_mapper.select_by_id(school_id)
+            if zn_school_info:
+                country_id = zn_school_info.country_id
+                country_info = country_info_mapper.select_by_id(country_id)
+
+    if zn_school_department_project is None and school_name:
+        zn_school_info = zn_school_info_mapper.select_by_name(school_name)
+        if zn_school_info:
+            country_id = zn_school_info.country_id
+            country_info = country_info_mapper.select_by_id(country_id)
+
     if intelligentCalibration.background_institution:
         school_china = school_china_mapper.select_by_name(major_name)
 
@@ -61,14 +71,29 @@ def intelligent_calibration(intelligentCalibration: IntelligentCalibration):
         school_id_list = [zn_school_department_project.school_id]
 
     if not project_id_list:
+        offer_country_id = 1
+        if intelligentCalibration.country_name == '英国':
+            offer_country_id = 3
         # 没有提供专业，根据提供的信息去案例库查询,案例库使用对的国家id是文签的
-        studentMatriculateCase = StudentMatriculateCase(offer_country_id=1,
+        studentMatriculateCase = StudentMatriculateCase(offer_country_id=offer_country_id,
                                                         education_gpa=float(gpa_req),
                                                         offer_college_name_zh=school_name,
                                                         education_school_name_zh=intelligentCalibration.background_institution,
                                                         offer_degree_name=intelligentCalibration.academic_degree)
         student_matriculate_case_list = student_matriculate_case_mapper.select_by_student_matriculate_case(
             studentMatriculateCase)
+        # student_matriculate_case_list 不足5个，减去offer_college_name_zh的条件，在查询一次
+        if len(student_matriculate_case_list) < 5:
+            studentMatriculateCase = StudentMatriculateCase(offer_country_id=offer_country_id,
+                                                            education_gpa=float(gpa_req),
+                                                            education_school_name_zh=intelligentCalibration.background_institution,
+                                                            offer_degree_name=intelligentCalibration.academic_degree)
+            student_matriculate_case_list2 = student_matriculate_case_mapper.select_by_student_matriculate_case(
+                studentMatriculateCase)
+        # 根据id合并两次查询的结果student_matriculate_case_list的结果在前，只留5个
+        student_matriculate_case_list.extend(student_matriculate_case_list2)
+        student_matriculate_case_list = student_matriculate_case_list[:5]
+
         # 案例库获取的文签的学校、专业id，与开放平台的学校、专业id不一样，需要转换
         service_confirm_school_id_list = [student_matriculate_case.service_confirm_school_id for
                                           student_matriculate_case in student_matriculate_case_list]
@@ -90,8 +115,8 @@ def intelligent_calibration(intelligentCalibration: IntelligentCalibration):
         if project.school_id in result_dict:
             result_dict[project.school_id]["projects"].append(project)
 
-    project_data_list = object_to_list(zn_school_department_project_list)
     school_data_list = object_to_list(zn_school_info_list)
+    project_data_list = object_to_list(zn_school_department_project_list)
     matriculate_case_data_list = object_to_list(student_matriculate_case_list)
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -101,7 +126,7 @@ def intelligent_calibration(intelligentCalibration: IntelligentCalibration):
                              school_Information=school_data_list,
                              professional_information=project_data_list,
                              admission_case=matriculate_case_data_list)
-    return prompt
+    return {"prompt": prompt, "reference_data": school_data_list + project_data_list + matriculate_case_data_list}
 
 
 def object_to_list(zn_school_info_list):

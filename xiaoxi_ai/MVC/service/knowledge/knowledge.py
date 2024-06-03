@@ -18,7 +18,7 @@ esClient = KnowledgeEs()
 langchain_client = langchain_client.LangChain()
 
 
-def information_consultant(query: str, model_name: str) -> str:
+def information_consultant(query: str) -> dict:
     langfuse_context.update_current_trace(
         user_id="1001",
     )
@@ -37,22 +37,8 @@ def information_consultant(query: str, model_name: str) -> str:
     file_path = os.path.join(base_dir, '../../../prompt/knowledge_prompt.txt')
     template = PromptTemplate.from_file(file_path)
     prompt = template.format(input=query, reference_data=reference_data)
-    ai_message = langchain_client.invoke_with_handler(prompt, model_name)
-    response_metadata = ai_message.response_metadata
-    token_usage = response_metadata['token_usage']
-    ai_chat_log_mapper.insert_ai_chat_log(ai_message.id, response_metadata['model_name'], query, prompt,
-                                          token_usage['prompt_tokens'], ai_message.content,
-                                          token_usage['completion_tokens']
-                                          , token_usage['total_tokens'])
-    response = {
-        "reference_data": reference_data,
-        "ai_message": ai_message.content
-    }
+    return {"prompt": prompt, "reference_data": reference_data}
 
-    # 将响应转换为 UTF-8 编码的 JSON 字符串
-    response_json = json.dumps(response, ensure_ascii=False)
-
-    return response_json
 
 
 class KnowledgeService:
