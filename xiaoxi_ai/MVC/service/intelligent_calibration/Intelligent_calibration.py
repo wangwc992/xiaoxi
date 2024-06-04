@@ -18,7 +18,7 @@ def intelligent_calibration(intelligentCalibration: IntelligentCalibration) -> d
         file_path = os.path.join(base_dir, '../../../prompt/calibration_information_insufficient.txt')
         template = PromptTemplate.from_file(file_path)
         prompt = template.format(input=intelligentCalibration)
-        return prompt
+        return {"prompt": prompt, "reference_data": intelligentCalibration.dict()}
 
     # 获取学校和专业的名称，英文名优先
     school_name = intelligentCalibration.school_name_en if intelligentCalibration.school_name_en else intelligentCalibration.school_name_zh
@@ -75,8 +75,9 @@ def intelligent_calibration(intelligentCalibration: IntelligentCalibration) -> d
         if intelligentCalibration.country_name == '英国':
             offer_country_id = 3
         # 没有提供专业，根据提供的信息去案例库查询,案例库使用对的国家id是文签的
+        education_gpa = float(gpa_req) if gpa_req is not None else None
         studentMatriculateCase = StudentMatriculateCase(offer_country_id=offer_country_id,
-                                                        education_gpa=float(gpa_req),
+                                                        education_gpa=education_gpa,
                                                         offer_college_name_zh=school_name,
                                                         education_school_name_zh=intelligentCalibration.background_institution,
                                                         offer_degree_name=intelligentCalibration.academic_degree)
@@ -85,11 +86,18 @@ def intelligent_calibration(intelligentCalibration: IntelligentCalibration) -> d
         # student_matriculate_case_list 不足5个，减去offer_college_name_zh的条件，在查询一次
         if len(student_matriculate_case_list) < 5:
             studentMatriculateCase = StudentMatriculateCase(offer_country_id=offer_country_id,
-                                                            education_gpa=float(gpa_req),
+                                                            education_gpa=education_gpa,
                                                             education_school_name_zh=intelligentCalibration.background_institution,
                                                             offer_degree_name=intelligentCalibration.academic_degree)
-            student_matriculate_case_list2 = student_matriculate_case_mapper.select_by_student_matriculate_case(
-                studentMatriculateCase)
+            student_matriculate_case_list2 = []  # Initialize the variable before the if statement
+
+            if len(student_matriculate_case_list) < 5:
+                studentMatriculateCase = StudentMatriculateCase(offer_country_id=offer_country_id,
+                                                                education_gpa=education_gpa,
+                                                                education_school_name_zh=intelligentCalibration.background_institution,
+                                                                offer_degree_name=intelligentCalibration.academic_degree)
+                student_matriculate_case_list2 = student_matriculate_case_mapper.select_by_student_matriculate_case(
+                    studentMatriculateCase)
         # 根据id合并两次查询的结果student_matriculate_case_list的结果在前，只留5个
         student_matriculate_case_list.extend(student_matriculate_case_list2)
         student_matriculate_case_list = student_matriculate_case_list[:5]
