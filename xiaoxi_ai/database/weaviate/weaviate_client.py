@@ -18,7 +18,16 @@ class WeaviateClient:
     def __init__(self, collections_name):
         self.collections_name = collections_name
         self.collections = self.client.collections.get(collections_name)
-
+    def create_collection(self):
+        if not self.client.collections.exists(self.collections_name):
+            self.client.collections.create(
+                self.collections_name,
+                properties=[
+                    Property(name="instruction", data_type=DataType.TEXT),
+                    Property(name="output", data_type=DataType.TEXT),
+                ],
+                vector_index_config=Configure.VectorIndex.hnsw()
+            )
     def collections_list_all(self):
         collections = self.client.collections.list_all()
         for collection in collections:
@@ -66,6 +75,7 @@ class WeaviateClient:
         response = self.collections.query.near_vector(
             near_vector=near_vector,
             limit=limit,
+            distance=0.332763,
             return_metadata=MetadataQuery(distance=True)
         )
         return response

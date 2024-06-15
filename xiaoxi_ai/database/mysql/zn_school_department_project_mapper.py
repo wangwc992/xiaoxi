@@ -76,6 +76,7 @@
 
 from xiaoxi_ai.database.mysql import mysql_connect
 from datetime import datetime
+
 mySQLConnectCur = mysql_connect.MySQLConnect().cur
 
 # 创建实体类
@@ -153,11 +154,10 @@ class ZnSchoolDepartmentProject(BaseModel):
     weight: Optional[int] = Field(None, description="排序权重（23.7-24.1申请数）")
 
 
-
-
 # 预编译的方式根据专业名称模糊查询专业信息,返回zn_school_department_project对象，如果没有查询到则返回None
 def select_noe_by_name(name):
-    mySQLConnectCur.execute('select * from zn_school_department_project where english_name like %s', ('%' + name + '%',))
+    mySQLConnectCur.execute('select * from zn_school_department_project where english_name like %s',
+                            ('%' + name + '%',))
     result = mySQLConnectCur.fetchone()
     if result is None:
         return None
@@ -171,6 +171,7 @@ def select_noe_by_name(name):
 
     return ZnSchoolDepartmentProject(**result_dict)
 
+
 # 预编译 根据专业的id列表查询专业信息，返回zn_school_department_project对象列表，如果没有查询到则返回None
 def select_by_ids(ids):
     sql = 'select * from zn_school_department_project where id in (%s)' % ','.join(['%s'] * len(ids))
@@ -179,6 +180,20 @@ def select_by_ids(ids):
     if result is None:
         return None
 
+    # Get column names from cursor description
+    column_names = [column[0] for column in mySQLConnectCur.description]
+
+    # Convert result tuple to dictionary
+    result_dict = [dict(zip(column_names, row)) for row in result]
+    # result_dict 变成 CountryInfo 对象
+    return [ZnSchoolDepartmentProject(**row) for row in result_dict]
+
+
+def select_by_id(school_id):
+    mySQLConnectCur.execute('select * from zn_school_department_project where school_id = %s order by weight desc limit 10', (school_id,))
+    result = mySQLConnectCur.fetchall()
+    if result is None:
+        return None
     # Get column names from cursor description
     column_names = [column[0] for column in mySQLConnectCur.description]
 

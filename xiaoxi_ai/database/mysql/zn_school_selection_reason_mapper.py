@@ -1,12 +1,14 @@
-'''CREATE TABLE `zn_school_rank` (
+'''CREATE TABLE `zn_school_selection_reason` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `school_id` int(11) DEFAULT NULL COMMENT '院校表ID',
-  `world_rank_usnews` int(5) DEFAULT NULL COMMENT '世界USNEWS排名',
-  `world_rank_the` int(5) DEFAULT NULL COMMENT '世界泰晤士高等教育排名',
-  `world_rank_qs` int(5) DEFAULT NULL COMMENT '世界QS排名',
-  `local_rank_usnews` int(5) DEFAULT NULL COMMENT '地区USNEWS排名',
-  `local_rank_the` int(5) DEFAULT NULL COMMENT '地区泰晤士高等教育排名',
-  `local_rank_qs` int(5) DEFAULT NULL COMMENT '地区QS排名',
+  `selection_reason` text COMMENT '择校理由',
+  `feature` text COMMENT '学校特色',
+  `strong_majors` text COMMENT '强势专业',
+  `hot_majors` text COMMENT '热门专业',
+  `department_major` text COMMENT '院系设置',
+  `teaching` text COMMENT '教学特色',
+  `evaluation_bad` text COMMENT '差评项',
+  `evaluation_good` text COMMENT '好评项',
   `delete_status` int(1) DEFAULT '0' COMMENT '是否删除  0-未删除,1-已删除',
   `create_by` int(11) NOT NULL COMMENT '创建人',
   `update_by` int(11) NOT NULL COMMENT '更新人',
@@ -16,12 +18,14 @@
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_school` (`school_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=20011 DEFAULT CHARSET=utf8mb4 COMMENT='院校排名表';'''
+) ENGINE=InnoDB AUTO_INCREMENT=20114 DEFAULT CHARSET=utf8mb4;'''
+
 from datetime import datetime
 
 from xiaoxi_ai.database.mysql import mysql_connect
 
 mySQLConnectCur = mysql_connect.MySQLConnect().cur
+
 
 # 创建实体类
 from typing import Optional, Dict, Any
@@ -30,15 +34,17 @@ from langchain_core.pydantic_v1 import Field
 from pydantic import BaseModel
 
 
-class ZnSchoolRank(BaseModel):
-    id: Optional[int] = Field(None, description="院校排名id")
+class ZnSchoolSelectionReason(BaseModel):
+    id: Optional[int] = Field(None, description="择校理由id")
     school_id: Optional[int] = Field(None, description="院校表ID")
-    world_rank_usnews: Optional[int] = Field(None, description="世界USNEWS排名")
-    world_rank_the: Optional[int] = Field(None, description="世界泰晤士高等教育排名")
-    world_rank_qs: Optional[int] = Field(None, description="世界QS排名")
-    local_rank_usnews: Optional[int] = Field(None, description="地区USNEWS排名")
-    local_rank_the: Optional[int] = Field(None, description="地区泰晤士高等教育排名")
-    local_rank_qs: Optional[int] = Field(None, description="地区QS排名")
+    selection_reason: Optional[str] = Field(None, description="择校理由")
+    feature: Optional[str] = Field(None, description="学校特色")
+    strong_majors: Optional[str] = Field(None, description="强势专业")
+    hot_majors: Optional[str] = Field(None, description="热门专业")
+    department_major: Optional[str] = Field(None, description="院系设置")
+    teaching: Optional[str] = Field(None, description="教学特色")
+    evaluation_bad: Optional[str] = Field(None, description="差评项")
+    evaluation_good: Optional[str] = Field(None, description="好评项")
     delete_status: Optional[int] = Field(0, description="是否删除  0-未删除,1-已删除")
     create_by: Optional[int] = Field(None, description="创建人")
     update_by: Optional[int] = Field(None, description="更新人")
@@ -48,7 +54,7 @@ class ZnSchoolRank(BaseModel):
     update_time: Optional[datetime] = Field(None, description="更新时间")
 
 def select_by_id(school_id):
-    mySQLConnectCur.execute('select * from zn_school_rank where school_id=%s', (school_id,))
+    mySQLConnectCur.execute('select * from zn_school_selection_reason where school_id=%s', (school_id,))
     result = mySQLConnectCur.fetchone()
     if result is None:
         return None
@@ -58,6 +64,5 @@ def select_by_id(school_id):
 
     # Convert result tuple to dictionary
     result_dict = dict(zip(column_names, result))
-    # result_dict 变成 CountryInfo 对象
 
-    return ZnSchoolRank(**result_dict)
+    return ZnSchoolSelectionReason(**result_dict)
