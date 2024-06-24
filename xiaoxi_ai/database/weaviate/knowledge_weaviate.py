@@ -31,6 +31,7 @@ class KnowledgeWeaviate(WeaviateClient):
                 self.collections_name,
                 properties=[
                     Property(name="instruction", data_type=DataType.TEXT),
+                    Property(name="input", data_type=DataType.TEXT),
                     Property(name="output", data_type=DataType.TEXT),
                 ],
                 vector_index_config=Configure.VectorIndex.hnsw()
